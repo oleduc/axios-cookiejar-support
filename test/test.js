@@ -71,20 +71,15 @@ describe('axios', () => {
       nock('http://example.com')
         .get('/')
         .reply(200);
-
       axios
-        .get('http://example.com', {
-          adapter: config =>
-            axios.defaults.adapter(config).then(response => {
-              delete response.config[symbols.COOKIEJAR_SUPPORT_LOCAL];
-              return response;
-            }),
-        })
+        .get('http://example.com')
         .then(res => {
           assert.strictEqual(res.status, 200);
         })
         .then(done)
         .catch(done);
+
+
     });
   });
 
@@ -273,7 +268,7 @@ describe('axios', () => {
         axios
           .get('http://example.com', { jar: cookieJar })
           .then(res => {
-            assert.strictEqual(res.config.jar, cookieJar);
+              assert.strictEqual(res.config.jar, cookieJar);
           })
           .then(done)
           .catch(done);
@@ -376,6 +371,8 @@ describe('axios', () => {
 
       it('should use config.jar if config.jar = CookieJar', done => {
         const anotherCookieJar = new tough.CookieJar();
+        anotherCookieJar.setCookie("foo", "/", () => {});
+
         nock('http://example.com')
           .get('/')
           .reply(200);
@@ -383,7 +380,7 @@ describe('axios', () => {
         axios
           .get('http://example.com', { jar: anotherCookieJar })
           .then(res => {
-            assert.notStrictEqual(res.config.jar, axios.defaults.jar);
+            assert.strictEqual(res.config.jar, anotherCookieJar);
           })
           .then(done)
           .catch(done);
